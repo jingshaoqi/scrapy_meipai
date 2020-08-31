@@ -1,12 +1,24 @@
 # 美拍的视频地址进行了加密，先暂停，以后再来研究
 import scrapy
 import uuid
+import js2py
 import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from urllib.parse import urljoin
 from scrapy.spiders import CrawlSpider, Rule, Spider
 from meipai.items import MeipaiItem
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+
+
+# 用python运行js代码进行解密
+def get_video_url(str):
+    context = js2py.EvalJs()
+    with open("meipai.js", "r", encoding="utf-8") as f:
+        context.execute(f.read())
+        result = context.decodeVideo(str)
+        if not result[:4] == 'http':
+            result = 'http:' + result
+    return result
 
 
 class MeipaiSpider(Spider):
@@ -41,11 +53,14 @@ class MeipaiSpider(Spider):
         # https://www.52pojie.cn/thread-1068403-1-1.html
         # 中的方法
         # 执行的函数为 playPicsVideo
-        video_src = response.xpath('//div[@class="mp-h5-player-layer-video"]')
-        print(video_src)
-        url = urljoin(response.url, video_src)
-        name = time.localtime()
+        # 'c191Ly9tdn5bZUZpZGVvMTEubWVpdHVkYXRhLmNvbS81ZjExZDI1MDlmMjNlOGhqYzRmbTFhOTYyOF9IMjY0XzFfMWZlZTI5Y2U0YmVmZTgubXZwZSACBFA0'
+        video_src_data = response.xpath('//div[@id="detailVideo"]/@data-video').get()
+        # http://mvvideo11.meitudata.com/5f11d2509f23e8hjc4fm1a9628_H264_1_1fee29ce4befe8.mp4
+        video_url = get_video_url(video_src_data)
+        url = urljoin(response.url, video_url)
+        name = video_url.split('/')[-1]
         item = MeipaiItem()
+        item['name'] = name
         item['url'] = url
         yield item
         return
