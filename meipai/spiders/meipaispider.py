@@ -38,6 +38,7 @@ class MeipaiSpider(Spider):
         # 现在的美拍的视频url地址是经过加密的，可以查看
         # https://www.jianshu.com/p/446e57544f57
         # https://www.52pojie.cn/thread-1074085-1-1.html
+        # https://www.52pojie.cn/thread-1068403-1-1.html
         # 中的方法
         # 执行的函数为 playPicsVideo
         video_src = response.xpath('//div[@class="mp-h5-player-layer-video"]')
