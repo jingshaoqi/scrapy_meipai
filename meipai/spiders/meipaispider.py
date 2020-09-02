@@ -1,4 +1,10 @@
-# 美拍的视频地址进行了加密，先暂停，以后再来研究
+# 美拍的视频地址解析网址 https://meipai.iiilab.com/
+'''
+带有blob:http的视频地址如何下载，参考如下网址：
+https://blog.csdn.net/angry_mills/article/details/82705595?utm_medium=distribute.pc_relevant.none-task-blog-title-8&spm=1001.2101.3001.4242
+https://superuser.com/questions/1033563/how-to-download-video-with-blob-url?answertab=votes
+
+'''
 import scrapy
 import uuid
 import js2py
@@ -31,13 +37,12 @@ class MeipaiSpider(Spider):
 
     def parse(self, response):
         items = response.xpath('//ul[@id="mediasList"]/li/div/a[@class="content-l-p pa"]')
-        item_list = items[:1]
-        for i in item_list:
+        for i in items:
             video_link = i.xpath('.//@href').extract()[0]
             # http://www.meipai.com/media/1039574971
-            video_link_full_link = urljoin(response.url, video_link)
-            yield scrapy.Request(url=video_link_full_link, callback=self.content)
-            break
+            video_link_full = urljoin(response.url, video_link)
+            print('video_link_full"{}'.format(video_link_full))
+            yield scrapy.Request(url=video_link_full, callback=self.content)
 
         # next_page = response.xpath('//dl[@class="list-left public-box"]/dd[@class="page"]//a[last()-1]/text()')
         # if "下一页" == next_page.extract()[0]:
@@ -59,6 +64,7 @@ class MeipaiSpider(Spider):
         video_url = get_video_url(video_src_data)
         url = urljoin(response.url, video_url)
         name = video_url.split('/')[-1]
+        print('url:{}'.format(url))
         item = MeipaiItem()
         item['name'] = name
         item['url'] = url
