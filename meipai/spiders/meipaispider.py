@@ -71,6 +71,12 @@ class MeipaiSpider(Spider):
         yield item
         return
 
+        #注意下面的代码在safari和chrome浏览器下是有vido标签的，而在firefox浏览器中没有
+        '''
+        <div class="mp-h5-player-layer-video">
+                  <video id="videoV3aaGyiPJ5JNou1v" src="//mvvideo10.meitudata.com/5f10196aa974e3e2w2k1o73839_H264_1_1dde15d27180d8.mp4"></video>
+                </div>
+        '''
         chrome_options = Options()
 
         prefs = {
